@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h2>Musicians</h2>
+    <ul>
+        {% for musician in musicians %}
+          <li><a href="{% url 'demoapp:musician_detail' pk=musician.id %}">{{ musician.artist_name }}</a></li>
+        {% endfor %}
+    </ul>
+{% endblock %}
