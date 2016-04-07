@@ -32,6 +32,7 @@ def musician_create(request, template='demoapp/musician_new.html'):
 
     if request.method == 'POST':
         musician = MusicianForm(request.POST)
+        album = AlbumFormSet(request.POST, instance=Musician())
 
         if musician.is_valid():
             musician = musician.save(commit=False)
@@ -47,6 +48,6 @@ def musician_create(request, template='demoapp/musician_new.html'):
         musician = MusicianForm()
         album = AlbumFormSet(instance=Musician())
 
-    return render(request, template, {'musician':musician,
-        'albums':album
+    return render(request, template, {'musician': musician,
+        'albums': album
     })

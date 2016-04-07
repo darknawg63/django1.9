@@ -4,7 +4,6 @@
 <script type="text/javascript" src="{% static 'admin/js/core.js' %}"></script>
 <script type="text/javascript" src="{% static 'admin/js/vendor/jquery/jquery.js' %}"></script>
 <script type="text/javascript" src="{% static 'admin/js/app.js' %}"></script>
-
 <script type="text/javascript" src="{% static 'admin/js/jquery.init.js' %}"></script>
 <script type="text/javascript" src="{% static 'admin/js/admin/RelatedObjectLookups.js' %}"></script>
 <script type="text/javascript" src="{% static 'admin/js/actions.js' %}"></script>
@@ -14,80 +13,116 @@
 <script type="text/javascript" src="{% static 'admin/js/inlines.js' %}"></script>
 <script type="text/javascript" src="{% static 'admin/js/calendar.js' %}"></script>
 <script type="text/javascript" src="{% static 'admin/js/admin/DateTimeShortcuts.js' %}"></script>
-<script type="text/javascript" src="{% static 'admin/js/jquery.formset.js' %}"></script>
 <meta name="robots" content="NONE,NOARCHIVE" /> {% endblock extrastyle %}
 <!-- Content -->
 {% block branding %}
 <h1>Musician Administration</h1>{% endblock %} {% block content %}
 <div id="content" class="colM">
-  <h1>Add musician</h1>
-  <div id="content-main">
-    <form enctype="multipart/form-data" action="" method="post" id="musician_form" novalidate>
-      {% csrf_token %}
-      <div>
-        <fieldset class="module aligned ">
-          <h2>Musician</h2>
-          <div class="form-row">
+    <h1>Add musician</h1>
+    <div id="content-main">
+        <form enctype="multipart/form-data" action="" method="post" id="musician_form" novalidate>
+            {% csrf_token %}
             <div>
-              {{ musician.artist_name.label_tag }} {{ musician.artist_name }} {{ musician.artist_name.errors }}
+                <fieldset class="module aligned ">
+                    <h2>Musician</h2>
+                    <div class="form-row">
+                        <div>
+                            {{ musician.artist_name.label_tag }} {{ musician.artist_name }} {{ musician.artist_name.errors }}
+                        </div>
+                    </div>
+                </fieldset>
+                <div class="inline-group" id="album_set-group">
+                    <h2>Albums</h2> {% for album in albums %} {{ albums.management_form }}
+                    <div class="inline-related dynamic-album_set">
+                        <h3><b>Album:</b>&nbsp;<span class="inline_label">#{{ forloop.counter }}</span></h3>
+                        <fieldset class="module aligned ">
+                            <div class="form-row field-name">
+                                <div>
+                                    {{ album.name.label_tag }} {{ album.name }} {{ album.name.errors }}
+                                </div>
+                            </div>
+                            <div class="form-row field-release_date">
+                                <div class="date-field">
+                                    {{ album.release_date.label_tag }} {{ album.release_date }} {{ album.release_date.errors }}
+                                </div>
+                            </div>
+                        </fieldset>
+                        {% endfor %}
+                    </div>
+                    <div class="inline-related empty-form last-related" id="album_set-empty">
+                        <h3><b>Album:</b>&nbsp;<span class="inline_label">#2</span></h3>
+                        <fieldset class="module aligned ">
+                            <div class="form-row field-name">
+                                <div>
+                                    <label class="required" for="id_album_set-__prefix__-name">Name:</label>
+                                    <input class="vTextField" id="id_album_set-__prefix__-name" maxlength="100" name="album_set-__prefix__-name" type="text">
+                                </div>
+                            </div>
+                            <div class="form-row field-release_date">
+                                <div>
+                                    <label class="required" for="id_album_set-__prefix__-release_date">Release date:</label>
+                                    <input class="vDateField" id="id_album_set-__prefix__-release_date" name="album_set-__prefix__-release_date" size="10" type="text"><span class="datetimeshortcuts">&nbsp;<a href="javascript:DateTimeShortcuts.handleCalendarQuickLink(1, 0);">Today</a>&nbsp;|&nbsp;<a href="javascript:DateTimeShortcuts.openCalendar(1);" id="calendarlink1"><span class="date-icon" title="Choose a Date"></span></a>
+                                    </span>
+                                </div>
+                            </div>
+                        </fieldset>
+                        <input id="id_album_set-__prefix__-id" name="album_set-__prefix__-id" type="hidden">
+                        <input id="id_album_set-__prefix__-artist" name="album_set-__prefix__-artist" type="hidden">
+                    </div>
+                </div>
+                <script type="text/javascript">
+                (function($) {
+                    $("#album_set-group .inline-related").stackedFormset({
+                        prefix: "album_set",
+                        deleteText: "Remove",
+                        addText: "Add another Album"
+                    });
+                })(django.jQuery);
+                </script>
+                <div class="submit-row">
+                    <input type="submit" value="Save" class="default" name="_save">
+                    <input type="submit" value="Save and add another" name="_addanother">
+                    <input type="submit" value="Save and continue editing" name="_continue">
+                </div>
+                <script type="text/javascript">
+                (function($) {
+                    $(document).ready(function() {
+                        $('.add-another').click(function(e) {
+                            e.preventDefault();
+                            var event = $.Event('django:add-another-related');
+                            $(this).trigger(event);
+                            if (!event.isDefaultPrevented()) {
+                                showAddAnotherPopup(this);
+                            }
+                        });
+                        $('.related-lookup').click(function(e) {
+                            e.preventDefault();
+                            var event = $.Event('django:lookup-related');
+                            $(this).trigger(event);
+                            if (!event.isDefaultPrevented()) {
+                                showRelatedObjectLookupPopup(this);
+                            }
+                        });
+
+
+                        $('form#musician_form :input:visible:enabled:first').focus()
+
+                    });
+                })(django.jQuery);
+                </script>
+                <script type="text/javascript">
+                (function($) {
+                    var field;
+
+
+                })(django.jQuery);
+                </script>
             </div>
-          </div>
-        </fieldset>
-        <div class="inline-group" id="album_set-group">
-          <h2>Albums</h2> {% for album in albums %} {{ albums.management_form }}
-          <div class="inline-related">
-            <h3><b>Album:</b>&nbsp;<span class="inline_label">#{{ forloop.counter }}</span></h3>
-            <fieldset class="module aligned ">
-              <div class="form-row field-name">
-                <div>
-                  {{ album.name.label_tag }} {{ album.name }} {{ album.name.errors }}
-                </div>
-              </div>
-              <div class="form-row field-release_date">
-                <div class="date-field">
-                  {{ album.release_date.label_tag }} {{ album.release_date }} {{ album.release_date.errors }}
-                </div>
-              </div>
-            </fieldset>
-            {% endfor %}
-          </div>
-          <div class="inline-related empty-form last-related" id="album_set-empty">
-            <h3><b>Album:</b>&nbsp;<span class="inline_label">#2</span>
-
-      
-    
-  </h3>
-            <fieldset class="module aligned ">
-              <div class="form-row field-name">
-                <div>
-                  <label class="required" for="id_album_set-__prefix__-name">Name:</label>
-                  <input class="vTextField" id="id_album_set-__prefix__-name" maxlength="100" name="album_set-__prefix__-name" type="text">
-                </div>
-              </div>
-              <div class="form-row field-release_date">
-                <div>
-                  <label class="required" for="id_album_set-__prefix__-release_date">Release date:</label>
-                  <input class="vDateField" id="id_album_set-__prefix__-release_date" name="album_set-__prefix__-release_date" size="10" type="text"><span class="datetimeshortcuts">&nbsp;<a href="javascript:DateTimeShortcuts.handleCalendarQuickLink(1, 0);">Today</a>&nbsp;|&nbsp;<a href="javascript:DateTimeShortcuts.openCalendar(1);" id="calendarlink1"><span class="date-icon" title="Choose a Date"></span></a>
-                  </span>
-              </div>
-            </fieldset>
-            <input id="id_album_set-__prefix__-id" name="album_set-__prefix__-id" type="hidden">
-            <input id="id_album_set-__prefix__-artist" name="album_set-__prefix__-artist" type="hidden">
-          </div>
-        </div>
-      </div>
-
-      
-      <br class="clear" />
-    </form>
-    <script type="text/javascript">
-    $(document).ready(function() {
-        $('#myForm tbody tr').formset();
-    });
-</script>
-  </div>
+        </form>
+    </div>
+    <br class="clear" />
 </div>
+{% endblock %}
 <!-- END Content -->
 <div id="footer"></div>
-{% endblock %}
 <!-- END Container -->
